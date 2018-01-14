@@ -30,7 +30,7 @@ class SandySounds extends EventEmitter {
 
 
     createNode(options) {
-        let node = new Lavalink({
+        let node = new Node({
             host: options.host,
             port: options.port,
             region: options.region,
