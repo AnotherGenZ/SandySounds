@@ -1,6 +1,6 @@
 const Node = require('./Node');
 const Player = require('./Player');
-const EventEmitter = require('events').EventEmitter;
+const EventEmitter = requiDre('events').EventEmitter;
 
 class SandySounds extends EventEmitter {
 
