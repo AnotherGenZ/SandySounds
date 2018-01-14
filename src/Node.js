@@ -29,6 +29,7 @@ class Node extends EventEmitter {
 
 		this.host = options.host;
 		this.port = options.port || 80;
+		this.url = `${this.host}:${this.port}`;
 		this.address = `ws://${this.host}:${this.port}`;
 		this.region = options.region || null;
 		this.userId = options.userId;
@@ -164,7 +165,6 @@ class Node extends EventEmitter {
 
 		this.emit('message', data);
 	}
-
 }
 
 module.exports = Node;

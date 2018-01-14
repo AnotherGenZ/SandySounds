@@ -20,4 +20,8 @@ class Client {
     async getGuild(guildID) {
         return await this.functions.getGuild(guildID);
     }
+
+    async sendWS(shard, op, packet) {
+        return await this.functions.sendWS(shard, op, packet);
+    }
 }

@@ -95,7 +95,7 @@ class SandySounds extends EventEmitter {
 
 
     shardReady(id) {
-        let players = this.filter(player => player.shard && player.shard.id === id);
+        let players = this.filter(player => player.shard && player.shard === id);
         for (let player of players) {
             this.queueFailover(this.switchNode.bind(this, player));
         }
@@ -200,7 +200,7 @@ class SandySounds extends EventEmitter {
                 if (!shard) {
                     this.emit('sendWS', payload.op, payload.d);
                 } else {
-                    shard.sendWS(payload.op, payload.d);
+                    this.client.sendWS(shard.id, payload.op, payload.d);
                 }
 
                 if (payload.op === 4 && payload.d.channel_id === null) {
@@ -322,9 +322,11 @@ class SandySounds extends EventEmitter {
                 player.event = data;
                 this.players.set(data.guild_id, player);
             }
-
+            
+            let shard = this.client.getShard(data.shard_id);
+            if (!shard) return;
             player = player || this.players.set(new Player(data.guild_id, {
-                shard: data.shard,
+                shard: shard,
                 guildId: data.guild_id,
                 sessionId: data.session_id,
                 channelId: this.pendingGuilds[data.guild_id].channelId,
