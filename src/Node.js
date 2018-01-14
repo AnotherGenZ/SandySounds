@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+const axios = require('axios');
 
 var EventEmitter;
 
@@ -58,6 +59,15 @@ class Node extends EventEmitter {
 				'User-Id': this.userId,
 			},
 		});
+
+		this.rest = axios.create({
+			baseURL: this.address,
+			headers: {
+				Authorization: this.password,
+				Host: this.address
+			}
+		});
+
 
 		this.ws.on('open', this.ready.bind(this));
 		this.ws.on('message', this.onMessage.bind(this));
@@ -164,6 +174,20 @@ class Node extends EventEmitter {
 		}
 
 		this.emit('message', data);
+	}
+
+	resolveTrack(identifier) {
+		return new Promise((res, rej) => {
+			this.rest.get('/loadtracks', {
+				params: {
+					identifier: identifier
+				}
+			}).then(req => {
+				res(req.data);
+			}).catch((error) => {
+				rej(error);
+			});
+		});
 	}
 }
 
