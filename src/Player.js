@@ -1,8 +1,3 @@
-/**
- * Created by Julian & NoobLance on 25.05.2017.
- */
-const Constants = require('./Constants');
-
 var EventEmitter;
 
 try {
@@ -26,7 +21,7 @@ class Player extends EventEmitter {
      * @param {string} data.hostname The hostname of the lavalink node
      * @param {PlayerManager} data.manager The PlayerManager associated with this player
      * @param {Lavalink} data.node The Lavalink node associated with this player
-     * @param {Shard} data.shard The eris shard associated with this player
+     * @param {Shard} data.shard The shard associated with this player
      * @param {Object} [data.options] Additional passed from the user to the player
      */
     constructor(id, { hostname, guildId, channelId, shard, node, manager, options }) {
@@ -54,7 +49,7 @@ class Player extends EventEmitter {
      */
     checkEventQueue() {
         if (this.sendQueue.length > 0) {
-            let event = this.sendQueue.splice(0,1);
+            let event = this.sendQueue.splice(0, 1);
             this.sendEvent(event[0]);
         }
     }
@@ -245,7 +240,7 @@ class Player extends EventEmitter {
      * @returns {void}
      */
     switchChannel(channelId, reactive) {
-        if(this.channelId === channelId) {
+        if (this.channelId === channelId) {
             return;
         }
 
@@ -267,7 +262,7 @@ class Player extends EventEmitter {
      */
     updateVoiceState(channelId, selfMute, selfDeaf) {
         if (this.shard.sendWS) {
-            this.shard.sendWS(Constants.GatewayOPCodes.VOICE_STATE_UPDATE, {
+            this.shard.sendWS(4, {
                 guild_id: this.id === 'call' ? null : this.id,
                 channel_id: channelId || null,
                 self_mute: !!selfMute,

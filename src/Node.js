@@ -1,5 +1,3 @@
-'use strict';
-
 const WebSocket = require('ws');
 
 var EventEmitter;
@@ -126,7 +124,7 @@ class Node extends EventEmitter {
 	 * @private
 	 */
 	retryInterval() {
-		let retries = Math.min(this.retries-1, 5);
+		let retries = Math.min(this.retries - 1, 5);
 		return Math.pow(retries + 5, 2) * 1000;
 	}
 

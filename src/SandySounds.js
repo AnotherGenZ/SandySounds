@@ -1,5 +1,3 @@
-
-const Collection = require('./Collection');
 const Node = require('./Node');
 const Player = require('./Player');
 const EventEmitter = requiDre('events').EventEmitter;
@@ -9,10 +7,10 @@ class SandySounds extends EventEmitter {
     constructor(client, nodes, options) {
         super();
         this.client = client;
-        this.players = new Collection(options.player || Player);
-        this.nodes = new Collection(options.node || Node);
+        this.players = new Map;
+        this.nodes = new Map();
         this.pendingGuilds = {};
-        this.options = options || {}; 
+        this.options = options || {};
         this.failoverQueue = [];
         this.failoverRate = options.failoverRate || 250;
         this.failoverLimit = options.failoverLimit || 1;
@@ -188,7 +186,7 @@ class SandySounds extends EventEmitter {
                 };
 
                 let shard = await this.client.getShard(message.shardId);
-                if (shard && (shard.status === 'connected' || shard.status === 'ready')) {
+                if (shard && shard.status === 'ready') {
                     payload.connected = true;
                 }
 
@@ -325,7 +323,7 @@ class SandySounds extends EventEmitter {
                 this.players.set(data.guild_id, player);
             }
 
-            player = player || this.players.add(new this.baseObject(data.guild_id, {
+            player = player || this.players.set(new Player(data.guild_id, {
                 shard: data.shard,
                 guildId: data.guild_id,
                 sessionId: data.session_id,
@@ -385,7 +383,7 @@ class SandySounds extends EventEmitter {
         endpoint = endpoint.replace('vip-', '');
 
         for (let key in this.regions) {
-            let nodes = this.nodes.filter(n => n.region === key);
+            let nodes = Array.from(this.nodes.values()).filter(n => n.region === key);
             if (!nodes || !nodes.length) continue;
             if (!nodes.find(n => n.connected && !n.draining)) continue;
             for (let region of this.regions[key]) {
