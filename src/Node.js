@@ -1,7 +1,7 @@
 const WebSocket = require('ws');
 const axios = require('axios');
 
-var EventEmitter;
+let EventEmitter;
 
 try {
 	EventEmitter = require('eventemitter3');
@@ -148,8 +148,10 @@ class Node extends EventEmitter {
 		const ws = this.ws;
 		if (!ws) return;
 
+		let payload;
+
 		try {
-			var payload = JSON.stringify(data);
+			payload = JSON.stringify(data);
 		} catch (err) {
 			return this.emit('error', 'Unable to stringify payload.');
 		}
@@ -163,8 +165,11 @@ class Node extends EventEmitter {
 	 * @private
 	 */
 	onMessage(message) {
+
+		let data;
+
 		try {
-			var data = JSON.parse(message);
+			data = JSON.parse(message);
 		} catch (e) {
 			return this.emit('error', 'Unable to parse ws message.');
 		}
@@ -176,17 +181,11 @@ class Node extends EventEmitter {
 		this.emit('message', data);
 	}
 
-	resolveTrack(identifier) {
-		return new Promise((res, rej) => {
-			this.rest.get('/loadtracks', {
-				params: {
-					identifier: identifier
-				}
-			}).then(req => {
-				res(req.data);
-			}).catch((error) => {
-				rej(error);
-			});
+	async resolveTrack(identifier) {
+		return this.rest.get('/loadtracks', {
+			params: {
+				identifier: identifier
+			}
 		});
 	}
 }

@@ -1,8 +1,10 @@
+const functions = require('../functions');
+
 class Client {
     constructor(functions) {
         this.functions = functions;
 
-        ['getShard', 'getGuild', 'getChannel'].forEach(item => {
+        functions.forEach(item => {
             if (!this.functions[item]) {
                 console.error(`Missing ${item} in functions`);
             }
@@ -10,18 +12,18 @@ class Client {
     }
 
     async getShard(shardID) {
-        return await this.functions.getShard(shardID);
+        return this.functions.getShard(shardID);
     }
 
     async getChannel(channelID) {
-        return await this.functions.getChannel(channelID);
+        return this.functions.getChannel(channelID);
     }
 
     async getGuild(guildID) {
-        return await this.functions.getGuild(guildID);
+        return this.functions.getGuild(guildID);
     }
 
     async sendWS(shard, op, packet) {
-        return await this.functions.sendWS(shard, op, packet);
+        return this.functions.sendWS(shard, op, packet);
     }
 }

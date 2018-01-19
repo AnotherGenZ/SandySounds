@@ -1,6 +1,14 @@
 const Node = require('./Node');
 const Player = require('./Player');
-const EventEmitter = require('events').EventEmitter;
+const regions = require('./regions');
+
+let EventEmitter;
+
+try {
+    EventEmitter = require('eventemitter3');
+} catch (err) {
+    EventEmitter = require('events').EventEmitter;
+}
 
 class SandySounds extends EventEmitter {
 
@@ -15,12 +23,7 @@ class SandySounds extends EventEmitter {
         this.failoverRate = options.failoverRate || 250;
         this.failoverLimit = options.failoverLimit || 1;
 
-        this.defaultRegions = {
-            asia: ['hongkong', 'singapore', 'sydney'],
-            eu: ['eu', 'amsterdam', 'frankfurt', 'russia'],
-            us: ['us', 'brazil'],
-        };
-
+        this.defaultRegions = regions;
         this.regions = options.regions || this.defaultRegions;
 
         for (let node of nodes) {
@@ -322,7 +325,7 @@ class SandySounds extends EventEmitter {
                 player.event = data;
                 this.players.set(data.guild_id, player);
             }
-            
+
             let shard = this.client.getShard(data.shard_id);
             if (!shard) return;
             player = player || this.players.set(new Player(data.guild_id, {

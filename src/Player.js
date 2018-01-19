@@ -1,4 +1,4 @@
-var EventEmitter;
+let EventEmitter;
 
 try {
     EventEmitter = require('eventemitter3');
