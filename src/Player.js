@@ -268,6 +268,10 @@ class Player extends EventEmitter {
             });
         }
     }
+
+    async resolveTrack(identifier) {
+        return this.node.resolveTrack(identifier);
+    }
 }
 
 module.exports = Player;
