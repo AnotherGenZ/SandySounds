@@ -1,12 +1,12 @@
-const functions = require('../functions');
+const requiredFunctions = require('../functions');
 
 class Client {
     constructor(functions) {
         this.functions = functions;
 
-        functions.forEach(item => {
+        requiredFunctions.forEach(item => {
             if (!this.functions[item]) {
-                console.error(`Missing ${item} in functions`);
+                throw new Error(`Missing ${item} in functions`);
             }
         });
     }
@@ -23,7 +23,9 @@ class Client {
         return this.functions.getGuild(guildID);
     }
 
-    async sendWS(shard, op, packet) {
-        return this.functions.sendWS(shard, op, packet);
+    async sendWS(shardID, op, packet) {
+        return this.functions.sendWS(shardID, op, packet);
     }
 }
+
+module.exports = Client;

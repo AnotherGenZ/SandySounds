@@ -1,6 +1,6 @@
 const Node = require('./Node');
 const Player = require('./Player');
-const regions = require('./regions');
+const regions = require('../regions');
 
 let EventEmitter;
 
@@ -98,7 +98,7 @@ class SandySounds extends EventEmitter {
 
 
     shardReady(id) {
-        let players = this.filter(player => player.shard && player.shard === id);
+        let players = Array.from(this.players.values()).filter(player => player.shard && player.shard === id);
         for (let player of players) {
             this.queueFailover(this.switchNode.bind(this, player));
         }
@@ -210,12 +210,14 @@ class SandySounds extends EventEmitter {
                     this.players.delete(payload.d.guild_id);
                 }
             }
+                break;
             case 'playerUpdate': {
                 let player = this.players.get(message.guildId);
                 if (!player) return;
 
                 return player.stateUpdate(message.state);
             }
+
             case 'event': {
                 let player = this.players.get(message.guildId);
                 if (!player) return;
@@ -326,10 +328,8 @@ class SandySounds extends EventEmitter {
                 this.players.set(data.guild_id, player);
             }
 
-            let shard = this.client.getShard(data.shard_id);
-            if (!shard) return;
             player = player || this.players.set(new Player(data.guild_id, {
-                shard: shard,
+                shardID: data.shard_id,
                 guildId: data.guild_id,
                 sessionId: data.session_id,
                 channelId: this.pendingGuilds[data.guild_id].channelId,
