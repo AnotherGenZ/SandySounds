@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/MrJohnCoder/SandySounds/issues"
   },
-  "homepage": "https://github.com/MrJohnCoder/SandySounds#readme"
+  "homepage": "https://github.com/MrJohnCoder/SandySounds#readme",
+  "dependencies": {
+    "axios": "^0.17.1"
+  }
 }

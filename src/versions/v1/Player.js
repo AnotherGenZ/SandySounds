@@ -1,4 +1,4 @@
-var EventEmitter;
+let EventEmitter;
 
 try {
     EventEmitter = require('eventemitter3');
@@ -24,7 +24,7 @@ class Player extends EventEmitter {
      * @param {Shard} data.shard The shard associated with this player
      * @param {Object} [data.options] Additional passed from the user to the player
      */
-    constructor(id, { hostname, guildId, channelId, shard, node, manager, options }) {
+    constructor(id, { hostname, guildId, channelId, shardID, node, manager, options }) {
         super();
         this.id = id;
         this.node = node;
@@ -35,7 +35,7 @@ class Player extends EventEmitter {
         this.options = options;
         this.ready = false;
         this.playing = false;
-        this.shard = shard;
+        this.shardID = shardID;
         this.state = {};
         this.track = null;
         this.sendQueue = [];
@@ -259,14 +259,18 @@ class Player extends EventEmitter {
      * @private
      */
     updateVoiceState(channelId, selfMute, selfDeaf) {
-        if (this.shard.sendWS) {
-            this.shard.sendWS(4, {
+        if (this.manager.client) {
+            this.manager.client.sendWS(this.shardID, 4, {
                 guild_id: this.id === 'call' ? null : this.id,
                 channel_id: channelId || null,
                 self_mute: !!selfMute,
                 self_deaf: !!selfDeaf,
             });
         }
+    }
+
+    async resolveTrack(identifier) {
+        return this.node.resolveTrack(identifier);
     }
 }
 

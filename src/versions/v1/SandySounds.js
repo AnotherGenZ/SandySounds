@@ -1,6 +1,14 @@
 const Node = require('./Node');
 const Player = require('./Player');
-const EventEmitter = require('events').EventEmitter;
+const regions = require('../regions');
+
+let EventEmitter;
+
+try {
+    EventEmitter = require('eventemitter3');
+} catch (err) {
+    EventEmitter = require('events').EventEmitter;
+}
 
 class SandySounds extends EventEmitter {
 
@@ -15,12 +23,7 @@ class SandySounds extends EventEmitter {
         this.failoverRate = options.failoverRate || 250;
         this.failoverLimit = options.failoverLimit || 1;
 
-        this.defaultRegions = {
-            asia: ['hongkong', 'singapore', 'sydney'],
-            eu: ['eu', 'amsterdam', 'frankfurt', 'russia'],
-            us: ['us', 'brazil'],
-        };
-
+        this.defaultRegions = regions;
         this.regions = options.regions || this.defaultRegions;
 
         for (let node of nodes) {
@@ -30,7 +33,7 @@ class SandySounds extends EventEmitter {
 
 
     createNode(options) {
-        let node = new Lavalink({
+        let node = new Node({
             host: options.host,
             port: options.port,
             region: options.region,
@@ -87,7 +90,7 @@ class SandySounds extends EventEmitter {
 
 
     onDisconnect(node, msg) {
-        let players = this.filter(player => player.node.host === node.host);
+        let players = Array.from(this.players.values()).filter(player => player.node.host === node.host);
         for (let player of players) {
             this.queueFailover(this.switchNode.bind(this, player, true));
         }
@@ -95,7 +98,7 @@ class SandySounds extends EventEmitter {
 
 
     shardReady(id) {
-        let players = this.filter(player => player.shard && player.shard.id === id);
+        let players = Array.from(this.players.values()).filter(player => player.shard && player.shard === id);
         for (let player of players) {
             this.queueFailover(this.switchNode.bind(this, player));
         }
@@ -200,19 +203,21 @@ class SandySounds extends EventEmitter {
                 if (!shard) {
                     this.emit('sendWS', payload.op, payload.d);
                 } else {
-                    shard.sendWS(payload.op, payload.d);
+                    this.client.sendWS(shard.id, payload.op, payload.d);
                 }
 
                 if (payload.op === 4 && payload.d.channel_id === null) {
                     this.players.delete(payload.d.guild_id);
                 }
             }
+                break;
             case 'playerUpdate': {
                 let player = this.players.get(message.guildId);
                 if (!player) return;
 
                 return player.stateUpdate(message.state);
             }
+
             case 'event': {
                 let player = this.players.get(message.guildId);
                 if (!player) return;
@@ -324,7 +329,7 @@ class SandySounds extends EventEmitter {
             }
 
             player = player || this.players.set(new Player(data.guild_id, {
-                shard: data.shard,
+                shardID: data.shard_id,
                 guildId: data.guild_id,
                 sessionId: data.session_id,
                 channelId: this.pendingGuilds[data.guild_id].channelId,
