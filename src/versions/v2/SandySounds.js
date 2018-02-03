@@ -90,7 +90,7 @@ class SandySounds extends EventEmitter {
 
 
     onDisconnect(node, msg) {
-        let players = Array.from(this.nodes.values())(player => player.node.host === node.host);
+        let players = Array.from(this.nodes.values()).filter(player => player.node.host === node.host);
         for (let player of players) {
             this.queueFailover(this.switchNode.bind(this, player, true));
         }
