@@ -32,6 +32,7 @@ class Node extends EventEmitter {
         this.port = options.port || 80;
         this.url = `${this.host}:${this.port}`;
         this.address = `ws://${this.host}:${this.port}`;
+        this.restAddress = `http://${this.host}:${options.restPort}`;
         this.region = options.region || null;
         this.userId = options.userId;
         this.numShards = options.numShards;
@@ -61,9 +62,11 @@ class Node extends EventEmitter {
         });
 
         this.rest = axios.create({
-            baseURL: this.url,
+            baseURL: this.restAddress,
             headers: {
-                'Authorization': this.password
+                common: {
+                    "Authorization": this.password
+                }
             }
         });
 
@@ -181,11 +184,8 @@ class Node extends EventEmitter {
     }
 
     async resolveTrack(identifier) {
-        return this.rest.get('/loadtracks', {
-            params: {
-                identifier: identifier
-            }
-        });
+        let response = await this.rest.get(`/loadtracks?identifier=${identifier}`);
+        return response.data;
     }
 }
 
