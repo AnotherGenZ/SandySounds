@@ -310,7 +310,7 @@ class SandySounds extends EventEmitter {
     }
 
 
-    async voiceServerUpdate(data, session_id) {
+    async voiceServerUpdate(data) {
         if (this.pendingGuilds[data.guild_id] && this.pendingGuilds[data.guild_id].timeout) {
             clearTimeout(this.pendingGuilds[data.guild_id].timeout);
             this.pendingGuilds[data.guild_id].timeout = null;
@@ -325,7 +325,7 @@ class SandySounds extends EventEmitter {
             player = this.pendingGuilds[data.guild_id].player;
 
             if (player) {
-                player.sessionId = session_id;
+                player.sessionId = data.session_id;
                 player.hostname = this.pendingGuilds[data.guild_id].hostname;
                 player.node = this.pendingGuilds[data.guild_id].node;
                 player.event = data;
@@ -334,7 +334,7 @@ class SandySounds extends EventEmitter {
                 player = new Player(data.guild_id, {
                     shardID: data.shard_id,
                     guildId: data.guild_id,
-                    sessionId: session_id,
+                    sessionId: data.session_id,
                     channelId: this.pendingGuilds[data.guild_id].channelId,
                     hostname: this.pendingGuilds[data.guild_id].hostname,
                     node: this.pendingGuilds[data.guild_id].node,
@@ -346,7 +346,7 @@ class SandySounds extends EventEmitter {
             }
 
             player.connect({
-                sessionId: session_id,
+                sessionId: data.session_id,
                 guildId: data.guild_id,
                 channelId: this.pendingGuilds[data.guild_id].channelId,
                 event: {
