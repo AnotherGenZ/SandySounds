@@ -1,6 +1,6 @@
 const Node = require('./Node');
 const Player = require('./Player');
-const regions = require('../regions');
+const regions = require('../../regions');
 
 let EventEmitter;
 
