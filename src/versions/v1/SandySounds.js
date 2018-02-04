@@ -43,7 +43,6 @@ class SandySounds extends EventEmitter {
             password: options.password,
         });
 
-        node.connect();
         node.on('error', this.onError.bind(this, node));
         node.on('disconnect', this.onDisconnect.bind(this, node));
         node.on('message', this.onMessage.bind(this, node));
