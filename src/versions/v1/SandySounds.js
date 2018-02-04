@@ -1,6 +1,6 @@
 const Node = require('./Node');
 const Player = require('./Player');
-const regions = require('../regions');
+const regions = require('../../regions');
 
 let EventEmitter;
 
@@ -36,12 +36,14 @@ class SandySounds extends EventEmitter {
         let node = new Node({
             host: options.host,
             port: options.port,
+            restPort: options.restPort,
             region: options.region,
             numShards: options.numShards,
             userId: options.userId,
             password: options.password,
         });
 
+        node.connect();
         node.on('error', this.onError.bind(this, node));
         node.on('disconnect', this.onDisconnect.bind(this, node));
         node.on('message', this.onMessage.bind(this, node));
@@ -85,7 +87,7 @@ class SandySounds extends EventEmitter {
     }
 
     onError(node, err) {
-        this.emit(err);
+        this.emit("error", err);
     }
 
 
@@ -156,6 +158,7 @@ class SandySounds extends EventEmitter {
                 let payload = {
                     op: 'validationRes',
                     guildId: message.guildId,
+                    channelId: message.channelId
                 };
 
                 let guildValid = false;
@@ -177,7 +180,7 @@ class SandySounds extends EventEmitter {
                     channelValid = true;
                 }
 
-                payload.valid = guildValid && channelValid;
+                payload.valid = !!(guildValid && channelValid);
 
                 return node.send(payload);
             }
@@ -261,6 +264,8 @@ class SandySounds extends EventEmitter {
                 node: node,
                 res: res,
                 rej: rej,
+                hostname: node.host,
+                node: node,
                 timeout: setTimeout(() => {
                     node.send({ op: 'disconnect', guildId: guildId });
                     delete this.pendingGuilds[guildId];
@@ -306,7 +311,7 @@ class SandySounds extends EventEmitter {
     }
 
 
-    async voiceServerUpdate(data) {
+    async voiceServerUpdate(data, session_id) {
         if (this.pendingGuilds[data.guild_id] && this.pendingGuilds[data.guild_id].timeout) {
             clearTimeout(this.pendingGuilds[data.guild_id].timeout);
             this.pendingGuilds[data.guild_id].timeout = null;
@@ -321,27 +326,28 @@ class SandySounds extends EventEmitter {
             player = this.pendingGuilds[data.guild_id].player;
 
             if (player) {
-                player.sessionId = data.sessionId;
+                player.sessionId = session_id;
                 player.hostname = this.pendingGuilds[data.guild_id].hostname;
                 player.node = this.pendingGuilds[data.guild_id].node;
                 player.event = data;
                 this.players.set(data.guild_id, player);
+            } else {
+                player = new Player(data.guild_id, {
+                    shardID: data.shard_id,
+                    guildId: data.guild_id,
+                    sessionId: session_id,
+                    channelId: this.pendingGuilds[data.guild_id].channelId,
+                    hostname: this.pendingGuilds[data.guild_id].hostname,
+                    node: this.pendingGuilds[data.guild_id].node,
+                    options: this.pendingGuilds[data.guild_id].options,
+                    event: data,
+                    manager: this,
+                });
+                this.players.set(data.guild_id, player);
             }
 
-            player = player || this.players.set(new Player(data.guild_id, {
-                shardID: data.shard_id,
-                guildId: data.guild_id,
-                sessionId: data.session_id,
-                channelId: this.pendingGuilds[data.guild_id].channelId,
-                hostname: this.pendingGuilds[data.guild_id].hostname,
-                node: this.pendingGuilds[data.guild_id].node,
-                options: this.pendingGuilds[data.guild_id].options,
-                event: data,
-                manager: this,
-            }));
-
             player.connect({
-                sessionId: data.session_id,
+                sessionId: session_id,
                 guildId: data.guild_id,
                 channelId: this.pendingGuilds[data.guild_id].channelId,
                 event: {
