@@ -63,8 +63,7 @@ class Node extends EventEmitter {
         this.rest = axios.create({
             baseURL: this.url,
             headers: {
-                'Authorization': this.password,
-                'Host': this.address
+                'Authorization': this.password
             }
         });
 
