@@ -65,7 +65,7 @@ class Node extends EventEmitter {
             baseURL: this.restAddress,
             headers: {
                 common: {
-                    "Authorization": this.password
+                    'Authorization': this.password
                 }
             }
         });
