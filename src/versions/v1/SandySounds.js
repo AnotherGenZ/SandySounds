@@ -86,7 +86,7 @@ class SandySounds extends EventEmitter {
     }
 
     onError(node, err) {
-        this.emit("error", err);
+        this.emit('error', err);
     }
 
 

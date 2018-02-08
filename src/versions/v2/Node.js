@@ -61,9 +61,11 @@ class Node extends EventEmitter {
         });
 
         this.rest = axios.create({
-            baseURL: this.url,
+            baseURL: this.restAddress,
             headers: {
-                'Authorization': this.password
+                common: {
+                    'Authorization': this.password
+                }
             }
         });
 
@@ -181,11 +183,8 @@ class Node extends EventEmitter {
     }
 
     async resolveTrack(identifier) {
-        return this.rest.get('/loadtracks', {
-            params: {
-                identifier: identifier
-            }
-        });
+        let response = await this.rest.get(`/loadtracks?identifier=${identifier}`);
+        return response.data;
     }
 }
 

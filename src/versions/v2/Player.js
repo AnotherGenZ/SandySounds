@@ -29,8 +29,8 @@ class Player extends EventEmitter {
         this.id = id;
         this.node = node;
         this.hostname = hostname;
-        this.guildId = guildId;
-        this.channelId = channelId;
+        this.guildID = guildId;
+        this.channelID = channelId;
         this.manager = manager || null;
         this.options = options;
         this.ready = false;
@@ -103,7 +103,10 @@ class Player extends EventEmitter {
      */
     async disconnect(msg) {
         this.playing = false;
-        this.queueEvent({ op: 'disconnect', guildId: this.guildId });
+        this.manager.client.sendWS(this.shardID, 4, {
+            guild_id: this.guildID,
+            channel_id: null
+        });
         this.emit('disconnect', msg);
     }
 
@@ -125,7 +128,7 @@ class Player extends EventEmitter {
 
         let payload = Object.assign({
             op: 'play',
-            guildId: this.guildId,
+            guildId: this.guildID,
             track: track,
         }, options);
 
@@ -141,7 +144,7 @@ class Player extends EventEmitter {
     stop() {
         let data = {
             op: 'stop',
-            guildId: this.guildId,
+            guildId: this.guildID,
         };
 
         this.queueEvent(data);
@@ -167,7 +170,7 @@ class Player extends EventEmitter {
     setPause(pause) {
         this.node.send({
             op: 'pause',
-            guildId: this.guildId,
+            guildId: this.guildID,
             pause: pause,
         });
     }
@@ -180,7 +183,7 @@ class Player extends EventEmitter {
     seek(position) {
         this.node.send({
             op: 'seek',
-            guildId: this.guildId,
+            guildId: this.guildID,
             position: position,
         });
     }
@@ -193,7 +196,7 @@ class Player extends EventEmitter {
     setVolume(volume) {
         this.node.send({
             op: 'volume',
-            guildId: this.guildId,
+            guildId: this.guildID,
             volume: volume,
         });
     }
@@ -238,11 +241,11 @@ class Player extends EventEmitter {
      * @returns {void}
      */
     switchChannel(channelId, reactive) {
-        if (this.channelId === channelId) {
+        if (this.channelID === channelId) {
             return;
         }
 
-        this.channelId = channelId;
+        this.channelID = channelId;
         if (reactive === true) {
             this.updateVoiceState(channelId);
         }

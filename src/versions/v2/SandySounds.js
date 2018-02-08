@@ -202,18 +202,23 @@ class SandySounds extends EventEmitter {
                 res: res,
                 rej: rej,
                 timeout: setTimeout(() => {
-                    node.send({ op: 'disconnect', guildId: guildId });
+                    let shardID = this.findShard(guildId);
+                    this.client.sendWS(shardID, 4, {
+                        guild_id: guildId,
+                        channel_id: null
+                    });
                     delete this.pendingGuilds[guildId];
                     rej(new Error('Voice connection timeout'));
                 }, 10000),
             };
 
-            node.send({
-                op: 'connect',
-                guildId: guildId,
-                channelId: channelId,
+            let shardID = this.findShard(guildId);
+            this.client.sendWS(shardID, 4, {
+                guild_id: guildId,
+                channel_id: channelId,
+                self_mute: false,
+                self_deaf: false
             });
-            this.client.sendWS();
         });
     }
 
@@ -262,24 +267,25 @@ class SandySounds extends EventEmitter {
             player = this.pendingGuilds[data.guild_id].player;
 
             if (player) {
-                player.sessionId = data.sessionId;
+                player.sessionId = data.session_id;
                 player.hostname = this.pendingGuilds[data.guild_id].hostname;
                 player.node = this.pendingGuilds[data.guild_id].node;
                 player.event = data;
                 this.players.set(data.guild_id, player);
+            } else {
+                player = new Player(data.guild_id, {
+                    shardID: data.shard_id,
+                    guildId: data.guild_id,
+                    sessionId: data.session_id,
+                    channelId: this.pendingGuilds[data.guild_id].channelId,
+                    hostname: this.pendingGuilds[data.guild_id].hostname,
+                    node: this.pendingGuilds[data.guild_id].node,
+                    options: this.pendingGuilds[data.guild_id].options,
+                    event: data,
+                    manager: this,
+                });
+                this.players.set(data.guild_id, player);
             }
-
-            player = player || this.players.set(new Player(data.guild_id, {
-                shardID: data.shard_id,
-                guildId: data.guild_id,
-                sessionId: data.session_id,
-                channelId: this.pendingGuilds[data.guild_id].channelId,
-                hostname: this.pendingGuilds[data.guild_id].hostname,
-                node: this.pendingGuilds[data.guild_id].node,
-                options: this.pendingGuilds[data.guild_id].options,
-                event: data,
-                manager: this,
-            }));
 
             player.connect({
                 sessionId: data.session_id,
@@ -340,6 +346,10 @@ class SandySounds extends EventEmitter {
         }
 
         return this.options.defaultRegion || 'us';
+    }
+
+    findShard(guildID) {
+        return ~~((guildID/ 4194304) % this.options.numShards);
     }
 }
 
