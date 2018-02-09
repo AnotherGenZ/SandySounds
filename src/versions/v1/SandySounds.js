@@ -264,7 +264,6 @@ class SandySounds extends EventEmitter {
                 res: res,
                 rej: rej,
                 hostname: node.host,
-                node: node,
                 timeout: setTimeout(() => {
                     node.send({ op: 'disconnect', guildId: guildId });
                     delete this.pendingGuilds[guildId];
