@@ -142,12 +142,12 @@ class Player extends EventEmitter {
      * @returns {void}
      */
     stop() {
-        let data = {
+        let payload = {
             op: 'stop',
             guildId: this.guildID,
         };
 
-        this.queueEvent(data);
+        this.queueEvent(payload);
         this.playing = false;
         this.lastTrack = this.track;
         this.track = null;
