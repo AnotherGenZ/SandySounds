@@ -99,7 +99,7 @@ class SandySounds extends EventEmitter {
 
 
     shardReady(id) {
-        let players = Array.from(this.players.values()).filter(player => player.shard && player.shard === id);
+        let players = Array.from(this.players.values()).filter(player => player.shardID && player.shardID === id);
         for (let player of players) {
             this.queueFailover(this.switchNode.bind(this, player));
         }
