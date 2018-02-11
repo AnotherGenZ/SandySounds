@@ -106,7 +106,7 @@ class SandySounds extends EventEmitter {
         }
     }
 
-    switchNode(player, leave) {
+    switchNode(player) {
         let { guildId, channelId, track } = player,
             position = (player.state.position || 0) + (this.options.reconnectThreshold || 2000);
 
@@ -130,22 +130,18 @@ class SandySounds extends EventEmitter {
 
         player.playing = false;
 
-        if (leave) {
-            player.updateVoiceState(null);
-        } else {
-            player.node.send({ op: 'disconnect', guildId: guildId });
-        }
+        player.updateVoiceState(null);
+
 
         process.nextTick(() => {
             this.join(guildId, channelId, null, player).then(player => {
                 player.play(track, { startTime: position });
                 player.emit('reconnect');
                 this.players.set(guildId, player);
-            })
-                .catch(err => {
-                    player.emit('disconnect', err);
-                    player.disconnect();
-                });
+            }).catch(err => {
+                player.emit('disconnect', err);
+                player.disconnect();
+            });
         });
     }
 
