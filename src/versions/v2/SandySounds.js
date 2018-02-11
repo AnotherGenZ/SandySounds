@@ -202,6 +202,7 @@ class SandySounds extends EventEmitter {
                 node: node,
                 res: res,
                 rej: rej,
+                hostname: node.host,
                 timeout: setTimeout(() => {
                     let shardID = this.findShard(guildId);
                     this.client.sendWS(shardID, 4, {
