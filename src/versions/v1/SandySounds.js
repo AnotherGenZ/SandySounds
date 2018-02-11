@@ -286,7 +286,7 @@ class SandySounds extends EventEmitter {
             return;
         }
         player.disconnect();
-        this.players.delete(player);
+        this.players.delete(guildId);
     }
 
 
@@ -343,18 +343,18 @@ class SandySounds extends EventEmitter {
                 });
                 this.players.set(data.guild_id, player);
             }
-
-            player.connect({
-                sessionId: data.session_id,
-                guildId: data.guild_id,
-                channelId: this.pendingGuilds[data.guild_id].channelId,
-                event: {
-                    endpoint: data.endpoint,
-                    guild_id: data.guild_id,
-                    token: data.token,
-                },
-            });
         }
+
+        player.connect({
+            sessionId: data.session_id,
+            guildId: data.guild_id,
+            channelId: this.pendingGuilds[data.guild_id].channelId,
+            event: {
+                endpoint: data.endpoint,
+                guild_id: data.guild_id,
+                token: data.token,
+            },
+        });
 
         let disconnectHandler = () => {
             player = this.players.get(data.guild_id);
