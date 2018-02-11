@@ -36,6 +36,7 @@ class SandySounds extends EventEmitter {
         let node = new Node({
             host: options.host,
             port: options.port,
+            restPort: options.restPort,
             region: options.region,
             numShards: options.numShards,
             userId: options.userId,
@@ -85,13 +86,13 @@ class SandySounds extends EventEmitter {
     }
 
     onError(node, err) {
-        this.emit(err);
+        this.emit('error', err);
     }
 
 
     onDisconnect(node, msg) {
         if (this.nodes.size === 0) throw new Error('No available voice nodes.');
-        let players = Array.from(this.nodes.values()).filter(player => player.node.host === node.host);
+        let players = Array.from(this.players.values()).filter(player => player.node.host === node.host);
         for (let player of players) {
             this.queueFailover(this.switchNode.bind(this, player, true));
         }

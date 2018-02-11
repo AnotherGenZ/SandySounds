@@ -32,6 +32,7 @@ class Node extends EventEmitter {
         this.port = options.port || 80;
         this.url = `${this.host}:${this.port}`;
         this.address = `ws://${this.host}:${this.port}`;
+        this.restAddress = `http://${this.host}:${options.restPort}`;
         this.region = options.region || null;
         this.userId = options.userId;
         this.numShards = options.numShards;
