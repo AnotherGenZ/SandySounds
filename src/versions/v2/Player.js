@@ -103,10 +103,20 @@ class Player extends EventEmitter {
      */
     async disconnect(msg) {
         this.playing = false;
+
         this.manager.client.sendWS(this.shardID, 4, {
             guild_id: this.guildID,
             channel_id: null
         });
+
+        if (this.paused) {
+            this.resume();
+        }
+
+        this.queueEvent({ op: 'destroy', guildId: this.guildId });
+
+        this.stop();
+
         this.emit('disconnect', msg);
     }
 
