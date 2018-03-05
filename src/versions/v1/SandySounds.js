@@ -181,7 +181,7 @@ class SandySounds extends EventEmitter {
                     channelValid = true;
                 }
 
-                payload.valid = !!(guildValid && channelValid);
+                payload.valid = guildValid && channelValid;
 
                 return node.send(payload);
             }
@@ -193,7 +193,7 @@ class SandySounds extends EventEmitter {
                 };
 
                 let shard = await this.client.getShard(message.shardId);
-                if (shard && shard.status === 'ready') {
+                if (shard && (shard.status === 'connected' || shard.status === 'ready')) {
                     payload.connected = true;
                 }
 
