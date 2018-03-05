@@ -91,6 +91,8 @@ class SandySounds extends EventEmitter {
 
 
     onDisconnect(node, msg) {
+        this.emit('nodeDisconnect', msg);
+        if (this.nodes.size === 0) throw new Error('No available voice nodes.');
         let players = Array.from(this.players.values()).filter(player => player.node.host === node.host);
         for (let player of players) {
             this.queueFailover(this.switchNode.bind(this, player, true));
