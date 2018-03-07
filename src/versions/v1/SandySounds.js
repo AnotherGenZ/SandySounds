@@ -91,6 +91,8 @@ class SandySounds extends EventEmitter {
 
 
     onDisconnect(node, msg) {
+        this.emit('nodeDisconnect', msg);
+        if (this.nodes.size === 0) throw new Error('No available voice nodes.');
         let players = Array.from(this.players.values()).filter(player => player.node.host === node.host);
         for (let player of players) {
             this.queueFailover(this.switchNode.bind(this, player, true));
@@ -179,7 +181,7 @@ class SandySounds extends EventEmitter {
                     channelValid = true;
                 }
 
-                payload.valid = !!(guildValid && channelValid);
+                payload.valid = guildValid && channelValid;
 
                 return node.send(payload);
             }
@@ -191,7 +193,7 @@ class SandySounds extends EventEmitter {
                 };
 
                 let shard = await this.client.getShard(message.shardId);
-                if (shard && shard.status === 'ready') {
+                if (shard && (shard.status === 'connected' || shard.status === 'ready')) {
                     payload.connected = true;
                 }
 
@@ -345,10 +347,19 @@ class SandySounds extends EventEmitter {
             }
         }
 
+        let channelId = player.channelId || this.pendingGuilds[data.guild_id].channelId;
+        if (!channelId) {
+            if (this.pendingGuilds[data.guild_id]) {
+                delete this.pendingGuilds[data.guild_id];
+                return this.pendingGuilds[data.guild_id].rej(new Error('Invalid Channel ID'));
+            }
+            return;
+        }
+
         player.connect({
             sessionId: data.session_id,
             guildId: data.guild_id,
-            channelId: this.pendingGuilds[data.guild_id].channelId,
+            channelId: channelId,
             event: {
                 endpoint: data.endpoint,
                 guild_id: data.guild_id,

@@ -29,8 +29,8 @@ class Player extends EventEmitter {
         this.id = id;
         this.node = node;
         this.hostname = hostname;
-        this.guildID = guildId;
-        this.channelID = channelId;
+        this.guildId = guildId;
+        this.channelId = channelId;
         this.manager = manager || null;
         this.options = options;
         this.ready = false;
@@ -103,10 +103,20 @@ class Player extends EventEmitter {
      */
     async disconnect(msg) {
         this.playing = false;
+
         this.manager.client.sendWS(this.shardID, 4, {
-            guild_id: this.guildID,
+            guild_id: this.guildId,
             channel_id: null
         });
+
+        if (this.paused) {
+            this.resume();
+        }
+
+        this.queueEvent({ op: 'destroy', guildId: this.guildId });
+
+        this.stop();
+
         this.emit('disconnect', msg);
     }
 
@@ -128,7 +138,7 @@ class Player extends EventEmitter {
 
         let payload = Object.assign({
             op: 'play',
-            guildId: this.guildID,
+            guildId: this.guildId,
             track: track,
         }, options);
 
@@ -144,7 +154,7 @@ class Player extends EventEmitter {
     stop() {
         let payload = {
             op: 'stop',
-            guildId: this.guildID,
+            guildId: this.guildId,
         };
 
         this.queueEvent(payload);
@@ -170,7 +180,7 @@ class Player extends EventEmitter {
     setPause(pause) {
         this.node.send({
             op: 'pause',
-            guildId: this.guildID,
+            guildId: this.guildId,
             pause: pause,
         });
     }
@@ -183,7 +193,7 @@ class Player extends EventEmitter {
     seek(position) {
         this.node.send({
             op: 'seek',
-            guildId: this.guildID,
+            guildId: this.guildId,
             position: position,
         });
     }
@@ -196,7 +206,7 @@ class Player extends EventEmitter {
     setVolume(volume) {
         this.node.send({
             op: 'volume',
-            guildId: this.guildID,
+            guildId: this.guildId,
             volume: volume,
         });
     }
@@ -241,11 +251,11 @@ class Player extends EventEmitter {
      * @returns {void}
      */
     switchChannel(channelId, reactive) {
-        if (this.channelID === channelId) {
+        if (this.channelId === channelId) {
             return;
         }
 
-        this.channelID = channelId;
+        this.channelId = channelId;
         if (reactive === true) {
             this.updateVoiceState(channelId);
         }
