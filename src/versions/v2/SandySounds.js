@@ -141,7 +141,6 @@ class SandySounds extends EventEmitter {
                 player.emit('reconnect');
                 this.players.set(guildId, player);
             }).catch(err => {
-                player.emit('disconnect', err);
                 player.disconnect();
             });
         });
@@ -229,7 +228,7 @@ class SandySounds extends EventEmitter {
         if (!player) {
             return;
         }
-        player.disconnect();
+        player._disconnect();
         this.players.delete(guildId);
     }
 
