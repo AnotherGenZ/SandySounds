@@ -18,11 +18,11 @@ class Node extends EventEmitter {
 	 * Lavalink constructor
 	 * @param {Object} options Lavalink node options
 	 * @param {string} options.host The hostname to connect to
-     * @param {string} options.port The port to connect with
-     * @param {string} options.region The region of the node
-     * @param {number} options.numShards The number of shards the bot is running
-     * @param {string} options.userId The user id of the bot
-     * @param {string} options.password The password for the Lavalink node
+     	 * @param {string} options.port The port to connect with
+         * @param {string} options.region The region of the node
+         * @param {number} options.numShards The number of shards the bot is running
+         * @param {string} options.userId The user id of the bot
+         * @param {string} options.password The password for the Lavalink node
 	 * @param {number} [options.timeout=5000] Optional timeout in ms used for the reconnect backoff
 	 */
     constructor(options) {
@@ -182,7 +182,11 @@ class Node extends EventEmitter {
 
         this.emit('message', data);
     }
-
+    /**
+	 * Gets a track using the lavalink REST API
+	 * @param {string} identifier What to search for
+	 * @returns{object}
+	 */
     async resolveTrack(identifier) {
         let response = await this.rest.get(`/loadtracks?identifier=${identifier}`);
         return response.data;

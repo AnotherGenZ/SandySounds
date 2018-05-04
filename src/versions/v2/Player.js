@@ -101,7 +101,12 @@ class Player extends EventEmitter {
      * @param {*} [msg] An optional disconnect message
      * @returns {void}
      */
-    async disconnect(msg) {
+    disconnect(msg) {
+        this._disconnect();
+        this.emit('disconnect', msg);
+    }
+
+    _disconnect() {
         this.playing = false;
 
         this.manager.client.sendWS(this.shardID, 4, {
@@ -116,8 +121,6 @@ class Player extends EventEmitter {
         this.queueEvent({ op: 'destroy', guildId: this.guildId });
 
         this.stop();
-
-        this.emit('disconnect', msg);
     }
 
     /**
