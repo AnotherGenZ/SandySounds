@@ -274,7 +274,7 @@ class SandySounds extends EventEmitter {
                 this.players.set(data.guild_id, player);
             } else {
                 player = new Player(data.guild_id, {
-                    shardID: data.shard_id,
+                    shardID: data.shard_id ? data.shard_id : this.findShard(data.guild_id),
                     guildId: data.guild_id,
                     sessionId: data.session_id,
                     channelId: this.pendingGuilds[data.guild_id].channelId,
