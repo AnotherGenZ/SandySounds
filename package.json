@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/MrJohnCoder/SandySounds#readme",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "ws": "^5.2.0"
   }
 }
